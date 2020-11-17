@@ -20,6 +20,6 @@ Projet sécurité M2 DSC - Fares Ibrahima Solofo
            - limite du sha
     - comparaison des fonctions de hashage
 
-## Avantage et inconvénients
+## Avantage et inconvénients (optionnel) 
     
 ## Conclusion
