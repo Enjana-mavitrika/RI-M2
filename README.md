@@ -8,9 +8,16 @@ Projet sécurité M2 DSC - Fares Ibrahima Solofo
 
 ## Preuve de travail et minage
 
-## Fonction sha-
-    - méthode de calcul
-    - limite du sha
+## Fonction hashage
+    - SHA-256
+        - méthode de calcul
+        - limite du sha
+    - 2e function
+        - méthode de calcul
+        - limite du sha
+    - 3e function
+           - méthode de calcul
+           - limite du sha
     - comparaison des fonctions de hashage
 
 ## Avantage et inconvénients
