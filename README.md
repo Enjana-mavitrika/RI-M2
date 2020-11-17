@@ -11,6 +11,7 @@ Projet sécurité M2 DSC - Fares Ibrahima Solofo
 ## Fonction sha-
     - méthode de calcul
     - limite du sha
+    - comparaison des fonctions de hashage
 
 ## Avantage et inconvénients
     
