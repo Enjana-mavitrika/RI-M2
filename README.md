@@ -1,25 +1,9 @@
-# S-curit-
-Projet sécurité M2 DSC - Fares Ibrahima Solofo
-# Plan
+# RI-M2
+Projet Recherche Information M2 DSC - Fares Ibrahima Solofo
 
-## Introduction
-## Définition de cryptomonnaie
-    - Quelques cryptomonnaies
 
-## Preuve de travail et minage
-
-## Fonction hashage
-    - SHA-256
-        - méthode de calcul
-        - limite du sha
-    - 2e function
-        - méthode de calcul
-        - limite du sha
-    - 3e function
-           - méthode de calcul
-           - limite du sha
-    - comparaison des fonctions de hashage
-
-## Avantage et inconvénients (optionnel) 
-    
-## Conclusion
+## Instruction 
+- Télécharger le repository 
+- Accéder au repository
+- Ouvrez un terminal dans le dossier contenant le fichier `sri.py`
+- Executez : `>_ python sri.py`
