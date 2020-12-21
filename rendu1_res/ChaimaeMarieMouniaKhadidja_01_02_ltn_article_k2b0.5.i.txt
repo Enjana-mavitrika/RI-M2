@@ -1,0 +1,2 @@
+ERROR *** (rendu1_fol/ChaimaeMarieMouniaKhadidja_01_02_ltn_article_k2b0.5.trec++) article results are interleaved in topic 2009036	article id: 3278743
+	interleaved results not allowed in inContext tasks!

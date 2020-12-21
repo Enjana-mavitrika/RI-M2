@@ -19,6 +19,11 @@ start_time = time.time()
 
 N = 0
 K = 1500
+NUM_RUN = "04"
+NUM_FILE = "06"
+ADDITION_INFO = "synset_query2,3,4,5,6,7"
+k1 = 2.0
+b = 0.75
 groupe_name = "FaresIbrahimaSolofo"
 w_q = {}
 scores = {}
@@ -32,6 +37,8 @@ querys = {
     2009078 : ["supervised", "machine", "learning", "algorithm"],
     2009085 : ["operating", "system", "mutual", "exclusion"] 
 }
+
+querys_2 = {}
 
 
 # lire le fichier contenant la collection 
@@ -70,21 +77,38 @@ for line in lines :
                     else :
                         df[stem_term] = 1.0
 
+# add synset of each term in queries
+query_count = 0
+for key in querys.keys() :
+    querys_2[key] = []
+    if query_count < 1 :
+        querys_2[key] = querys[key]
+        pass
+    else :
+        for term in querys[key] :
+            querys_2[key].append(term)
+            for syns in wordnet.synsets(term)[:10] :
+                syn = syns.lemmas()[0].name().lower()
+                stem = englishStemmer.stem(syn)
+                if syn not in querys_2[key] and stem in df.keys() :
+                    querys_2[key].append(syn)
+    query_count += 1
+print(querys_2)
+
 sum_size = 0
 for id in documents.keys() :
     sum_size += documents[id]
 
 avgdl = sum_size/N
-print("avdl = ", avgdl)
-k1 = 2.0
-b = 0.75
+#print("avdl = ", avgdl)
 
-print("df[inform] = ", df["inform"])
+#print("df[inform] = ", df["inform"])
 
-for query_id in querys.keys() :
-    for query in querys[query_id] :
+for query_id in querys_2.keys() :
+    scores = {}
+    for query in querys_2[query_id] :
         term = englishStemmer.stem(query)
-        print("query : ", term)
+        #print("query : ", term)
         if term in df.keys() :
             #w_q[term] = math.log(N/df[term])
             for doc in documents.keys() :
@@ -98,12 +122,6 @@ for query_id in querys.keys() :
                     else :
                         scores[doc] =  w
     
-    for doc in documents.keys() :
-        if doc in scores.keys() :
-            scores[doc] /= documents[doc]
-        else :
-            scores[doc] = 0.0
-    #print(scores)
     run = ""
     last_not_null_max_score = 0.001500
     for i in range(K) :
@@ -114,8 +132,8 @@ for query_id in querys.keys() :
         last_not_null_max_score = score
         run += "{} Q0 {} {} {:.8f} {} /article[1]\n".format(query_id, max_key, i+1, score, groupe_name)
         scores[max_key] = -1
-
-    with open('run/FaresIbrahimaSolofo_03_07_bm25_steming_k2.0b0.75.txt', 'a') as run_file :
+      
+    with open('run/FaresIbrahimaSolofo_{}_{}_bm25_articles_steming_k{}b{}_{}.txt'.format(NUM_RUN, NUM_FILE, k1, b, ADDITION_INFO), 'a') as run_file :
         run_file.write(run)
 
 end_time = time.time()
