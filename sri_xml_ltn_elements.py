@@ -3,6 +3,7 @@
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
+from nltk.stem.porter import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 import re  # use regex
 import os
@@ -14,7 +15,7 @@ from lxml import etree
 nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
-englishStemmer = SnowballStemmer("english", ignore_stopwords=True)
+englishStemmer = PorterStemmer() #SnowballStemmer("english", ignore_stopwords=True)
 tokenizer = RegexpTokenizer(r'\w+')
 
 start_time = time.time()
@@ -22,10 +23,8 @@ start_time = time.time()
 N = 0
 K = 1500
 NUM_RUN = "05"
-NUM_FILE = "03"
-ADDITION_INFO = "_stemmer_snowball"
-k1 = 0.5
-b = 0.3
+NUM_FILE = "07"
+ADDITIONAL_INFO = "_stemmer_porter"
 groupe_name = "FaresIbrahimaSolofo"
 S = 0
 P = 0
@@ -70,7 +69,6 @@ parser = etree.XMLParser(recover=True)
 with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
     for xml in xml_file:
         if count < 1:
-            #count += 1
             doc_id = str(xml.name).split('.')[0]
             scores[doc_id] = {}
             documents[doc_id] = 0
@@ -115,7 +113,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                     for token in tokens:
                         if token.isascii() and token not in stop_words and not token.isnumeric():
                             documents[doc_id] += 1
-                            stem_term = token #englishStemmer.stem(token)
+                            stem_term = englishStemmer.stem(token)
                             # handle section
                             if is_inside_section:
                                 #section_text += stem_term + " "
@@ -150,16 +148,12 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                                 else:
                                     df[stem_term] = 1
 
-            # with open('run_xml/{}_content.json'.format(doc_id), 'a') as outfile:
-            #     outfile.write(section_text)
-            #     outfile.write(paragraph_text)
-
 
 ROOT = '/article[1]'
 
 for query_id in querys.keys():
     for query in querys[query_id]:
-        term = query #englishStemmer.stem(query)
+        term = englishStemmer.stem(query)
         for doc_id in documents.keys():
             scores[doc_id] = {}
             # calculate scores for paragraphs in sections in articles
@@ -179,8 +173,6 @@ for query_id in querys.keys():
                     else:
                         scores[doc_id][ROOT] = w
 
-    # with open('run_xml/{}_scores.json'.format(query_id), 'a') as outfile:
-    #     json.dump(scores, outfile)
 
     grouped_scores = {}
     for doc_id in scores.keys():
@@ -193,9 +185,6 @@ for query_id in querys.keys():
         grouped_scores[doc_id, element_with_max_key] = max_score
         scores[doc_id] = {}
 
-    
-
-    print(grouped_scores)
 
     run = ""
     last_not_null_max_score = 0.001500
@@ -209,7 +198,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, doc_id_element[1])
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_ltn_elements_no_steming.txt'.format(NUM_RUN, NUM_FILE), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_ltn_elements{}.txt'.format(NUM_RUN, NUM_FILE, ADDITIONAL_INFO), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()
