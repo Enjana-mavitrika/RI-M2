@@ -101,8 +101,6 @@ for id in documents.keys() :
 
 avgdl = sum_size/N
 print("avdl = ", avgdl)
-k1 = 2.0
-b = 0.75
 print("N = ", N)
 
 #print(tf)
