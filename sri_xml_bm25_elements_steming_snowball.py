@@ -26,9 +26,9 @@ start_time = time.time()
 N = 0
 K = 1500
 NUM_RUN = "05"
-NUM_FILE = "06"
-k1 = 0.5
-b = 0.3
+NUM_FILE = "24"
+k1 = 2.9
+b = 0.2
 groupe_name = "FaresIbrahimaSolofo"
 S = 0
 P = 0
@@ -217,7 +217,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, doc_id_element[1])
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_stemmer_snowball_k{}b{}.txt'.format(NUM_RUN, NUM_FILE, k1, b, ADDITION_INFO), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_stemmer_snowball_k{}b{}.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()
