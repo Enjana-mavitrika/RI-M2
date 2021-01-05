@@ -40,9 +40,9 @@ querys = {
 }
 
 NUM_RUN = "05"
-NUM_FILE = "25"
-k1 = 0.5
-b = 0.3
+NUM_FILE = "28"
+k1 = 2.8
+b = 0.9
 
 count = 0
 tf = {}
