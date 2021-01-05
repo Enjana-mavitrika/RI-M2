@@ -129,7 +129,7 @@ for query_id in querys.keys() :
         run += "{} Q0 {} {} {:.8f} {} /article[1]\n".format(query_id, max_key, i+1, score, groupe_name)
         scores[max_key] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_articles_lematizer_k{}b{}.txt'.format(NUM_RUN, NUM_FILE, k1, b)) as run_file :
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_articles_lematizer_k{}b{}.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file :
         run_file.write(run)
 
 end_time = time.time()
