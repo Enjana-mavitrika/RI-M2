@@ -3,7 +3,6 @@
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
-from nltk.stem.porter import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 import re  # use regex
 import os
@@ -15,19 +14,16 @@ from lxml import etree
 nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
-englishStemmer = PorterStemmer() #SnowballStemmer("english", ignore_stopwords=True)
+englishStemmer = SnowballStemmer("english", ignore_stopwords=True)
 tokenizer = RegexpTokenizer(r'\w+')
-from nltk.stem import WordNetLemmatizer 
-  
-lemmatizer = WordNetLemmatizer() 
 
 start_time = time.time()
 
 N = 0
 K = 1500
 NUM_RUN = "05"
-NUM_FILE = "06"
-ADDITION_INFO = "_lemmatizer"
+NUM_FILE = "03"
+ADDITION_INFO = "_stemmer_snowball"
 k1 = 0.5
 b = 0.3
 groupe_name = "FaresIbrahimaSolofo"
@@ -47,6 +43,7 @@ querys = {
     2009078: ["supervised", "machine", "learning", "algorithm"],
     2009085: ["operating", "system", "mutual", "exclusion"]
 }
+
 
 count = 0
 tf = {}
@@ -118,7 +115,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                     for token in tokens:
                         if token.isascii() and token not in stop_words and not token.isnumeric():
                             documents[doc_id] += 1
-                            stem_term = lemmatizer.lemmatize(token) #token #englishStemmer.stem(token)
+                            stem_term = token #englishStemmer.stem(token)
                             # handle section
                             if is_inside_section:
                                 #section_text += stem_term + " "
@@ -153,42 +150,30 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                                 else:
                                     df[stem_term] = 1
 
-sum_size = 0
-for id in documents.keys():
-    sum_size += documents[id]
-avgdl = sum_size/N
-
-sum_size_elements = 0
-for element_size in elements_length.values():
-    sum_size_elements += element_size
-avgel = sum_size_elements / E
+            # with open('run_xml/{}_content.json'.format(doc_id), 'a') as outfile:
+            #     outfile.write(section_text)
+            #     outfile.write(paragraph_text)
 
 
 ROOT = '/article[1]'
 
 for query_id in querys.keys():
     for query in querys[query_id]:
-        term = lemmatizer.lemmatize(query) #query #englishStemmer.stem(query)
+        term = query #englishStemmer.stem(query)
         for doc_id in documents.keys():
             scores[doc_id] = {}
             # calculate scores for paragraphs in sections in articles
             if term in ef.keys():
                 for el_path in elements[doc_id]:
                     if (doc_id, el_path, term) in tf_e.keys():
-                        qi = (E - ef[term] + 0.5) / (ef[term] + 0.5)
-                        idf = math.log(qi)
-                        w = idf * ((tf_e[doc_id, el_path, term] * (k1 + 1)) / (tf_e[doc_id, el_path, term] +
-                                                             k1 * (1 - b + b * (elements_length[doc_id, el_path]/avgel))))
+                        w = (1 + math.log(tf_e[doc_id, el_path, term])) * math.log(E/ef[term])
                         if (doc_id, el_path) in scores[doc_id].keys():
                             scores[doc_id][el_path] += w
                         else:
                             scores[doc_id][el_path] = w
             if term in df.keys():
                 if (doc_id, term) in tf.keys():
-                    qi = (N - df[term] + 0.5) / (df[term] + 0.5)
-                    idf = math.log(qi)
-                    w = idf * ((tf[doc_id, term] * (k1 + 1)) / (tf[doc_id, term] +
-                                                             k1 * (1 - b + b * (documents[doc_id]/avgdl))))
+                    w = (1 + math.log(tf[doc_id, term])) * math.log(N/df[term])
                     if ROOT in scores[doc_id].keys():
                         scores[doc_id][ROOT] += w
                     else:
@@ -224,7 +209,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, doc_id_element[1])
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_steming_k{}b{}{}.txt'.format(NUM_RUN, NUM_FILE, k1, b, ADDITION_INFO), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_ltn_elements_no_steming.txt'.format(NUM_RUN, NUM_FILE), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()

@@ -21,9 +21,9 @@ N = 0
 K = 1500
 NUM_RUN = "04"
 NUM_FILE = "06"
-ADDITION_INFO = "synset_query2,3,4,5,6,7"
-k1 = 2.0
-b = 0.75
+ADDITION_INFO = ""
+k1 = 0.5
+b = 0.3
 groupe_name = "FaresIbrahimaSolofo"
 w_q = {}
 scores = {}
@@ -133,7 +133,7 @@ for query_id in querys_2.keys() :
         run += "{} Q0 {} {} {:.8f} {} /article[1]\n".format(query_id, max_key, i+1, score, groupe_name)
         scores[max_key] = -1
       
-    with open('run/FaresIbrahimaSolofo_{}_{}_bm25_articles_steming_k{}b{}_{}.txt'.format(NUM_RUN, NUM_FILE, k1, b, ADDITION_INFO), 'a') as run_file :
+    with open('run/FaresIbrahimaSolofo_{}_{}_bm25_articles_steming_k{}b{}{}.txt'.format(NUM_RUN, NUM_FILE, k1, b, ADDITION_INFO), 'a') as run_file :
         run_file.write(run)
 
 end_time = time.time()

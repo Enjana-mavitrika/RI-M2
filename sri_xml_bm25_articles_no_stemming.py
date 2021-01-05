@@ -39,10 +39,10 @@ querys = {
     2009085 : ["operating", "system", "mutual", "exclusion"] 
 }
 
-querys_2 = dict(querys)
-
-            
-# print(querys)
+NUM_RUN = "05"
+NUM_FILE = "06"
+k1 = 0.5
+b = 0.3
 
 count = 0
 tf = {}
@@ -84,7 +84,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file :
                     for token in tokens :
                         documents[doc_id] += 1
                         if token.isascii() and token not in stop_words and not token.isnumeric() :
-                            stem_term = englishStemmer.stem(token)
+                            stem_term = token #englishStemmer.stem(token)
                             if (doc_id, stem_term) in tf.keys() :
                                 tf[doc_id, stem_term] += 1
                             else :
@@ -95,20 +95,32 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file :
                                     df[stem_term] = 1
             
 
+sum_size = 0
+for id in documents.keys() :
+    sum_size += documents[id]
+
+avgdl = sum_size/N
+print("avdl = ", avgdl)
+k1 = 2.0
+b = 0.75
+print("N = ", N)
 
 #print(tf)
 for query_id in querys.keys() :
     for query in querys[query_id] :
-        term = englishStemmer.stem(query)
+        term = query #englishStemmer.stem(query)
         if term in df.keys() :
            for doc in documents.keys() :
+                #print("doc = ", doc)
                 if (doc, term) in tf.keys() :
+                    qi = (N - df[term] + 0.5) / (df[term] + 0.5)
+                    idf = math.log(qi)
+                    w = idf * ((tf[doc, term] * (k1 + 1)) / (tf[doc, term] + k1 * (1 - b + b * (documents[doc]/avgdl))))
                     if doc in scores.keys() :
-                        scores[doc] += 1 + math.log(tf[doc, term]) * math.log(N/df[term])
+                        scores[doc] += w  
                     else :
-                        scores[doc] =  1 + math.log(tf[doc, term]) * math.log(N/df[term])
+                        scores[doc] =  w
     
-  
     run = ""
     last_not_null_max_score = 0.001500
     for i in range(K) :
@@ -120,7 +132,7 @@ for query_id in querys.keys() :
         run += "{} Q0 {} {} {:.8f} {} /article[1]\n".format(query_id, max_key, i+1, score, groupe_name)
         scores[max_key] = -1
 
-    with open('run_xml/run.txt', 'a') as run_file :
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_articles_no_stemmer_k{}b{}{}.txt'.format(NUM_RUN, NUM_FILE, k1, b)) as run_file :
         run_file.write(run)
 
 end_time = time.time()

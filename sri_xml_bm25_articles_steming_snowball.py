@@ -39,10 +39,10 @@ querys = {
     2009085 : ["operating", "system", "mutual", "exclusion"] 
 }
 
-querys_2 = dict(querys)
-
-            
-# print(querys)
+NUM_RUN = "05"
+NUM_FILE = "06"
+k1 = 0.5
+b = 0.3
 
 count = 0
 tf = {}
@@ -95,19 +95,6 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file :
                                     df[stem_term] = 1
             
 
-# add synset of each term in queries
-# for key in querys.keys() : 
-#     for term in querys[key] :
-#         for syns in wordnet.synsets(term)[:6] :
-#             syn = syns.lemmas()[0].name().lower()
-#             stem = englishStemmer.stem(syn)
-#             if syn not in querys[key] and stem in df.keys() :
-#                 querys_2[key].append(syn)
-                #print("syn of ", term, " = ", syn)
-
-#print(querys)
-#print(querys_2)
-
 sum_size = 0
 for id in documents.keys() :
     sum_size += documents[id]
@@ -134,12 +121,6 @@ for query_id in querys.keys() :
                     else :
                         scores[doc] =  w
     
-   # Extract max scores from each document
-    for doc_id in documents.keys() :
-        if doc_id in scores.keys() :
-            scores[doc_id] /= documents[doc_id]
-        else :
-            scores[doc_id] = 0.0
     run = ""
     last_not_null_max_score = 0.001500
     for i in range(K) :
@@ -151,7 +132,7 @@ for query_id in querys.keys() :
         run += "{} Q0 {} {} {:.8f} {} /article[1]\n".format(query_id, max_key, i+1, score, groupe_name)
         scores[max_key] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_03_08_bm25_articles_xml_steming_k2.0b0.75.txt', 'a') as run_file :
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_articles_stemmer_snowball_k{}b{}{}.txt'.format(NUM_RUN, NUM_FILE, k1, b)) as run_file :
         run_file.write(run)
 
 end_time = time.time()
