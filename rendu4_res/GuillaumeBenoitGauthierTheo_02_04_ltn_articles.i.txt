@@ -1,2 +1,0 @@
-ERROR *** (rendu4_fol/GuillaumeBenoitGauthierTheo_02_04_ltn_articles.trec++) article results are interleaved in topic 2009011	article id: 3951728
-	interleaved results not allowed in inContext tasks!
