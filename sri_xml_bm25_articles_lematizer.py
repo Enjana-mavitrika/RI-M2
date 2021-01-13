@@ -9,13 +9,14 @@ import math
 from lxml import etree
 nltk.download('punkt')
 from nltk.tokenize import RegexpTokenizer
+from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 stop_words = set(stopwords.words('english'))
 from nltk.stem import WordNetLemmatizer 
 lemmatizer = WordNetLemmatizer() 
 from nltk.corpus import wordnet
-tokenizer = RegexpTokenizer(r'\w+')
+tokenizer = word_tokenize #RegexpTokenizer(r'\w+')
 
 start_time = time.time()
 
@@ -39,9 +40,9 @@ querys = {
     2009085 : ["operating", "system", "mutual", "exclusion"] 
 }
 
-NUM_RUN = "05"
-NUM_FILE = "35"
-k1 = 0.9
+NUM_RUN = "06"
+NUM_FILE = "01"
+k1 = 1.2
 b = 0.4
 
 count = 0
@@ -77,7 +78,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file :
                 tokens = []
                 text = element.xpath("text()")
                 for sentence in text :
-                    tokens = tokenizer.tokenize(sentence)
+                    tokens = tokenizer(sentence)
                     for token in tokens :
                         documents[doc_id] += 1
                         if token.isascii() and token not in stop_words and not token.isnumeric() :

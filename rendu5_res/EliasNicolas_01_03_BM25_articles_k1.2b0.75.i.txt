@@ -1,0 +1,1 @@
+ERROR *** (rendu5_fol/EliasNicolas_01_03_BM25_articles_k1.2b0.75.trec++) passage overlaps with previously retrieved passages in topic 2009074	article id: 9511414	in line: 6115

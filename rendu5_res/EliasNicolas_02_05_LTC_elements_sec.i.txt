@@ -1,0 +1,2 @@
+ERROR *** (rendu5_fol/EliasNicolas_02_05_LTC_elements_sec.trec++) article results are interleaved in topic 2009036	article id: 5579773
+	interleaved results not allowed in inContext tasks!
