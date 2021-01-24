@@ -36,8 +36,8 @@ def process_xpath(xpath) :
 N = 0
 K = 1500
 NUM_RUN = "09"
-NUM_FILE = "06"
-k1 = 0.5
+NUM_FILE = "92"
+k1 = 0.6
 b = 0.3
 groupe_name = "FaresIbrahimaSolofo"
 S = 0
