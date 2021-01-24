@@ -37,7 +37,7 @@ def process_xpath(xpath) :
 N = 0
 K = 1500
 NUM_RUN = "09"
-NUM_FILE = "04"
+NUM_FILE = "06"
 k1 = 0.7
 b = 0.3
 groupe_name = "FaresIbrahimaSolofo"
@@ -78,6 +78,11 @@ tf_e = {}
 ef = {}
 E = 0
 parser = etree.XMLParser(recover=True)
+
+page_rank = {}
+
+with open('page_rank.json') as json_file:
+    page_rank = json.load(json_file)
 
 # lire le dossier contenant la collection
 with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
@@ -195,10 +200,13 @@ for query_id in querys.keys():
                     idf = math.log(qi)
                     w = idf * ((tf[doc_id, term] * (k1 + 1)) / (tf[doc_id, term] +
                                                              k1 * (1 - b + b * (documents[doc_id]/avgdl))))
+                    p_rank = 0.0
+                    if doc_id in page_rank.keys() :
+                        p_rank = page_rank[doc_id]
                     if ROOT in scores[doc_id].keys():
-                        scores[doc_id][ROOT] += w
+                        scores[doc_id][ROOT] += w + p_rank
                     else:
-                        scores[doc_id][ROOT] = w
+                        scores[doc_id][ROOT] = w + p_rank
 
 
     grouped_scores = {}
@@ -228,7 +236,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, process_xpath(doc_id_element[1]))
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_lematizer_k{}b{}_fetch_and_browse_via_log.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_lematizer_k{}b{}_fetch_browse_log_pagerank.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()

@@ -15,9 +15,11 @@ nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 tokenizer = word_tokenize #RegexpTokenizer(r'\w+')
-from nltk.stem import WordNetLemmatizer 
+#from nltk.stem import WordNetLemmatizer 
+from nltk.stem.snowball import SnowballStemmer
+englishStemmer=SnowballStemmer("english", ignore_stopwords=True)
   
-lemmatizer = WordNetLemmatizer() 
+#lemmatizer = WordNetLemmatizer() 
 
 start_time = time.time()
 
@@ -37,8 +39,8 @@ def process_xpath(xpath) :
 N = 0
 K = 1500
 NUM_RUN = "09"
-NUM_FILE = "04"
-k1 = 0.7
+NUM_FILE = "11"
+k1 = 0.5
 b = 0.3
 groupe_name = "FaresIbrahimaSolofo"
 S = 0
@@ -79,12 +81,19 @@ ef = {}
 E = 0
 parser = etree.XMLParser(recover=True)
 
+
+title_content = {}
+ALPHA = 2
+
+
+
 # lire le dossier contenant la collection
 with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
     for xml in xml_file:
         doc_id = str(xml.name).split('.')[0]
         scores[doc_id] = {}
         documents[doc_id] = 0
+        title_content[doc_id] = []
         tree = etree.parse(xml.path, parser)
         tag_list = []
         sec_count = -1
@@ -99,6 +108,14 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
             text = ""
             tokens = []
             text = element.xpath("text()")
+            if element.tag == "title":
+                elements_length[doc_id, 'title'] = 0
+                for sentence in text :
+                    for token in tokenizer(sentence) :
+                        if token.isascii() and token not in stop_words and not token.isnumeric():
+                            stem_term = englishStemmer.stem(token) #lemmatizer.lemmatize(token)
+                            title_content[doc_id].append(stem_term)
+                            elements_length[doc_id, 'title'] += 1
             if element.tag == "sec":
                 current_sec = element
                 sec_path = tree.getpath(current_sec)
@@ -124,7 +141,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                 for token in tokens:
                     documents[doc_id] += 1
                     if token.isascii() and token not in stop_words and not token.isnumeric():
-                        stem_term = lemmatizer.lemmatize(token)
+                        stem_term = englishStemmer.stem(token) #lemmatizer.lemmatize(token)
                         # handle section
                         if is_inside_section:
                             elements_length[doc_id, sec_path] += 1
@@ -175,7 +192,7 @@ ROOT = '/article[1]'
 
 for query_id in querys.keys():
     for query in querys[query_id]:
-        term = lemmatizer.lemmatize(query)
+        term = englishStemmer.stem(query) #lemmatizer.lemmatize(query)
         for doc_id in documents.keys():
             # calculate scores for paragraphs in sections in articles
             if term in ef.keys():
@@ -191,10 +208,14 @@ for query_id in querys.keys():
                             scores[doc_id][el_path] = w
             if term in df.keys():
                 if (doc_id, term) in tf.keys():
+                    tf_prime = tf[doc_id, term]
+                    if term in title_content[doc_id] :
+                        tf_prime += ALPHA
                     qi = (N - df[term] + 0.5) / (df[term] + 0.5)
                     idf = math.log(qi)
-                    w = idf * ((tf[doc_id, term] * (k1 + 1)) / (tf[doc_id, term] +
+                    w = idf * ((tf_prime * (k1 + 1)) / (tf_prime +
                                                              k1 * (1 - b + b * (documents[doc_id]/avgdl))))
+                    
                     if ROOT in scores[doc_id].keys():
                         scores[doc_id][ROOT] += w
                     else:
@@ -228,7 +249,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, process_xpath(doc_id_element[1]))
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_lematizer_k{}b{}_fetch_and_browse_via_log.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_stemer_k{}b{}_fetch_browse_log_robertson04.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()

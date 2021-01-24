@@ -15,9 +15,11 @@ nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 tokenizer = word_tokenize #RegexpTokenizer(r'\w+')
-from nltk.stem import WordNetLemmatizer 
+#from nltk.stem import WordNetLemmatizer 
+#from nltk.stem.snowball import SnowballStemmer
+#englishStemmer=SnowballStemmer("english", ignore_stopwords=True)
   
-lemmatizer = WordNetLemmatizer() 
+#lemmatizer = WordNetLemmatizer() 
 
 start_time = time.time()
 
@@ -124,7 +126,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                 for token in tokens:
                     documents[doc_id] += 1
                     if token.isascii() and token not in stop_words and not token.isnumeric():
-                        stem_term = lemmatizer.lemmatize(token)
+                        stem_term = token #englishStemmer.stem(token) #lemmatizer.lemmatize(token)
                         # handle section
                         if is_inside_section:
                             elements_length[doc_id, sec_path] += 1
@@ -175,7 +177,7 @@ ROOT = '/article[1]'
 
 for query_id in querys.keys():
     for query in querys[query_id]:
-        term = lemmatizer.lemmatize(query)
+        term = query #englishStemmer.stem(query) #lemmatizer.lemmatize(query)
         for doc_id in documents.keys():
             # calculate scores for paragraphs in sections in articles
             if term in ef.keys():
@@ -228,7 +230,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, process_xpath(doc_id_element[1]))
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_lematizer_k{}b{}_fetch_and_browse_via_log.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_k{}b{}_fetch_and_browse_via_log.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()

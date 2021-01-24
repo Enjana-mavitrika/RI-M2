@@ -11,13 +11,17 @@ import json
 import time
 import math
 from lxml import etree
+import networkx as nx
+import matplotlib.pyplot as plt
 nltk.download('punkt')
 nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 tokenizer = word_tokenize #RegexpTokenizer(r'\w+')
-from nltk.stem import WordNetLemmatizer 
+#from nltk.stem import WordNetLemmatizer
+#from nltk.stem.snowball import SnowballStemmer
+#englishStemmer=SnowballStemmer("english", ignore_stopwords=True) 
   
-lemmatizer = WordNetLemmatizer() 
+#lemmatizer = WordNetLemmatizer() 
 
 start_time = time.time()
 
@@ -37,7 +41,7 @@ def process_xpath(xpath) :
 N = 0
 K = 1500
 NUM_RUN = "09"
-NUM_FILE = "04"
+NUM_FILE = "03"
 k1 = 0.7
 b = 0.3
 groupe_name = "FaresIbrahimaSolofo"
@@ -79,12 +83,57 @@ ef = {}
 E = 0
 parser = etree.XMLParser(recover=True)
 
+page_rank = {}
+
+with open('page_rank.json') as json_file:
+    page_rank = json.load(json_file)
+
+
+parser = etree.XMLParser(recover=True)
+
+# lire le dossier contenant la collection
+with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
+    for xml in xml_file:
+        if count == 0 :
+            #count = 2
+            doc_id = str(xml.name).split('.')[0]
+            documents[doc_id] = 0
+            elements[doc_id] = []
+            tree = etree.parse(xml.path, parser)
+            for element in tree.findall('.//link'):
+                href = element.get("{http://www.w3.org/1999/xlink}href")
+                if href is not None :
+                    contents = href.split('/')
+                    for content in contents :
+                        if '.xml' in content :
+                            # add anchor to doc
+                            text = element.xpath("text()")
+                            for sentence in text:
+                                tokens = tokenizer(sentence)
+                                for token in tokens:
+                                    if content.split('.')[0] not in documents.keys():
+                                        documents[content.split('.')[0]] = 1
+                                    else :
+                                        documents[content.split('.')[0]] += 1
+                                    if token.isascii() and token not in stop_words and not token.isnumeric():
+                                        stem_term = token #englishStemmer.stem(token) #lemmatizer.lemmatize(token)
+                                        if (doc_id, stem_term) in tf.keys():
+                                            tf[doc_id, stem_term] += 1
+                                        else:
+                                            tf[doc_id, stem_term] = 1
+                                            if stem_term in df.keys():
+                                                df[stem_term] += 1
+                                            else:
+                                                df[stem_term] = 1
+
+
+
 # lire le dossier contenant la collection
 with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
     for xml in xml_file:
         doc_id = str(xml.name).split('.')[0]
         scores[doc_id] = {}
-        documents[doc_id] = 0
+        # documents[doc_id] = 0
         tree = etree.parse(xml.path, parser)
         tag_list = []
         sec_count = -1
@@ -124,7 +173,7 @@ with os.scandir('XML_Coll_MWI_withSem/') as xml_file:
                 for token in tokens:
                     documents[doc_id] += 1
                     if token.isascii() and token not in stop_words and not token.isnumeric():
-                        stem_term = lemmatizer.lemmatize(token)
+                        stem_term = token #englishStemmer.stem(token) #lemmatizer.lemmatize(token)
                         # handle section
                         if is_inside_section:
                             elements_length[doc_id, sec_path] += 1
@@ -175,10 +224,10 @@ ROOT = '/article[1]'
 
 for query_id in querys.keys():
     for query in querys[query_id]:
-        term = lemmatizer.lemmatize(query)
+        term = query #englishStemmer.stem(query) #lemmatizer.lemmatize(query)
         for doc_id in documents.keys():
             # calculate scores for paragraphs in sections in articles
-            if term in ef.keys():
+            if term in ef.keys() and doc_id in elements.keys():
                 for el_path in elements[doc_id]:
                     if (doc_id, el_path, term) in tf_e.keys():
                         qi = (E - ef[term] + 0.5) / (ef[term] + 0.5)
@@ -195,10 +244,13 @@ for query_id in querys.keys():
                     idf = math.log(qi)
                     w = idf * ((tf[doc_id, term] * (k1 + 1)) / (tf[doc_id, term] +
                                                              k1 * (1 - b + b * (documents[doc_id]/avgdl))))
+                    p_rank = 0.0
+                    if doc_id in page_rank.keys() :
+                        p_rank = page_rank[doc_id]
                     if ROOT in scores[doc_id].keys():
-                        scores[doc_id][ROOT] += w
+                        scores[doc_id][ROOT] += w + p_rank
                     else:
-                        scores[doc_id][ROOT] = w
+                        scores[doc_id][ROOT] = w + p_rank
 
 
     grouped_scores = {}
@@ -228,7 +280,7 @@ for query_id in querys.keys():
             query_id, doc_id_element[0], i+1, score, groupe_name, process_xpath(doc_id_element[1]))
         grouped_scores[doc_id_element] = -1
 
-    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_lematizer_k{}b{}_fetch_and_browse_via_log.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
+    with open('run_xml/FaresIbrahimaSolofo_{}_{}_bm25_elements_k{}b{}_fetch_browse_log_pagerank_ancre.txt'.format(NUM_RUN, NUM_FILE, k1, b), 'a') as run_file:
         run_file.write(run)
 
 end_time = time.time()
